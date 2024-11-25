@@ -16,7 +16,7 @@ echo
 response=${response,,} # tolower
 if [[ $response =~ ^(y) ]]; then
     rm -rf /data/apps/overlay-fs
-    echo "The folder \"/data/apps/overlay-fs\" was removed."
+    echo "The directory \"/data/apps/overlay-fs\" was removed."
     echo
 fi
 

@@ -35,7 +35,7 @@ function mountOverlayFs ()
         return 1
     fi
 
-    # Extract the top folder name of the path
+    # Extract the top directory name of the path
     overlayName="$(basename "$1")"
 
 

@@ -29,10 +29,38 @@ An overlay filesystem is a type of filesystem that allows you to layer one files
 
 In first place it was developed for Venus OS, but could be adapted for other Linux systems.
 
+The idea is to combine overlays with apps so that if different apps use the same directory or subdirectorys, they share the same overlay. When an app is uninstalled, the overlay is not removed if it is still being used by another app.
+
 
 ## Config
 
-Modify the `overlay-fs.conf` in the `overlay-fs` folder as you need it. Just uncomment the absolute path you need or add a new one.
+### Add an App-Directory Combination
+
+To overlay a directory for a specific app, use the following command:
+
+```bash
+bash /data/apps/overlay-fs/add-app-and-directory.sh <app-name> <directory-path>
+```
+
+Example:
+
+```bash
+bash /data/apps/overlay-fs/add-app-and-directory.sh custom-web-app /var/www/venus
+```
+
+### Remove an App
+
+To remove an app and its overlays (if they are not used by other apps), use the following command:
+
+```bash
+bash /data/apps/overlay-fs/remove-app.sh <app-name>
+```
+
+Example:
+
+```bash
+bash /data/apps/overlay-fs/remove-app.sh custom-web-app
+```
 
 
 ## Install / Update / Enable
@@ -69,6 +97,14 @@ To disable the overlay-fs mount on boot, unmount the overlays and restore the pr
 bash /data/etc/overlay-fs/disable.sh
 ```
 
+## Enable
+
+To enable the overlay-fs mount in boot and mount the overlays, run this command:
+
+```bash
+bash /data/etc/overlay-fs/enable.sh
+```
+
 ## Uninstall
 
 To disable the overlay-fs mount on boot, unmount the overlays, restore the previous state and remove everything from the system, run this command:
@@ -86,11 +122,11 @@ This software supports the latest three stable versions of Venus OS. It may also
 
 1. **Configuration File**:
    - The script reads the configuration file located at `/data/apps/overlay-fs/overlay-fs.conf`.
-   - Each line in this file should specify a directory path that needs to be overlaid.
+   - Each line in this file should specify a directory path to be overlaid, followed by a space and one or more comma-separated app names.
 
 2. **Install script**:
    - The `enable.sh` script reads the configuration file and sets up overlay filesystems based on its contents.
-   - For each directory specified in the config file, it creates a corresponding folder under `/data/apps/overlay-fs/data`.
+   - For each directory specified in the config file, it creates a corresponding directory under `/data/apps/overlay-fs/data`.
    - It creates three necessary subdirectories: `upper`, `work`, and `merged`.
    - **Mounting Overlay**:<br>
      The script mounts the overlay filesystem to the `merged` directory, combining the original directory with the `upper` and `work` directories.

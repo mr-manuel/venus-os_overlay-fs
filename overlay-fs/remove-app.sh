@@ -6,8 +6,8 @@
 #
 # Version: 0.0.1 (20241125)
 
-# This script removes a folder from the overlay-fs.
-# It identifies which folders were mounted by an application, unmounts the overlay,
+# This script removes a directory from the overlay-fs.
+# It identifies which directorys were mounted by an application, unmounts the overlay,
 # and removes it from the config file if it was the only application using it.
 #
 # Usage: remove-app.sh <app-name>
@@ -92,7 +92,7 @@ while IFS= read -r line; do
                 # If the entry is empty, remove it from the config file and unmount the overlay
                 if [ ${#appNamesArray[@]} -eq 0 ]; then
                     sed -i "\;^$configDir;d" "/data/apps/overlay-fs/overlay-fs.conf"
-                    echo "The folder \"$configDir\" was removed from the config file."
+                    echo "The directory \"$configDir\" was removed from the config file."
 
                     # Unmount the overlay
                     overlayName="$(basename "$configDir")"
@@ -115,7 +115,7 @@ while IFS= read -r line; do
                     # Update the entry in the config file
                     newAppNames=$(IFS=,; echo "${appNamesArray[*]}")
                     sed -i "\;^$configDir ;s; .*; $newAppNames;" "/data/apps/overlay-fs/overlay-fs.conf"
-                    echo "The app \"$1\" was removed from the folder \"$configDir\" in the config file."
+                    echo "The app \"$1\" was removed from the directory \"$configDir\" in the config file."
                 fi
             fi
         done

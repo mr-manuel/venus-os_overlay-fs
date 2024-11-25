@@ -14,7 +14,7 @@
 appPath="/data/apps"
 appName="overlay-fs"
 
-# change to temp folder
+# change to temp directory
 cd "/tmp"
 
 echo
@@ -25,9 +25,9 @@ if [ "$1" == "-c" ] || [ "$1" == "--copy" ]; then
 
     echo "Copying app..."
 
-    # check if the app folder is available
+    # check if the app directory is available
     if [ ! -d "overlay-fs" ]; then
-        echo "The app folder is not available. Try to execute the download script to install, else copy the files again."
+        echo "The app directory is not available. Try to execute the download script to install, else copy the files again."
         exit 1
     fi
 
@@ -55,31 +55,31 @@ else
     fi
 
 
-    # If updating: cleanup old folder
+    # If updating: cleanup old directory
     if [ -d "/tmp/venus-os_${appName}-master" ]; then
         rm -rf "/tmp/venus-os_${appName}-master"
     fi
 
 
-    # unzip folder
+    # unzip directory
     echo "Unzipping app..."
     unzip venus-os_${appName}.zip
 
-    # Find and rename the extracted folder to be always the same
-    extractedFolder="$(find /tmp/ -maxdepth 1 -type d -name "*${appName}-*")"
+    # Find and rename the extracted directory to be always the same
+    extractedDirectory="$(find /tmp/ -maxdepth 1 -type d -name "*${appName}-*")"
 
-    # Desired folder name
-    desiredFolder="/tmp/venus-os_${appName}-master"
+    # Desired directory name
+    desiredDirectory="/tmp/venus-os_${appName}-master"
 
-    # Check if the extracted folder exists and does not already have the desired name
-    if [ -n "$extractedFolder" ]; then
-        if [ "$extractedFolder" != "$desiredFolder" ]; then
-            mv "$extractedFolder" "$desiredFolder"
+    # Check if the extracted directory exists and does not already have the desired name
+    if [ -n "$extractedDirectory" ]; then
+        if [ "$extractedDirectory" != "$desiredDirectory" ]; then
+            mv "$extractedDirectory" "$desiredDirectory"
         else
-            echo "Folder already has the desired name: $desiredFolder"
+            echo "Directory already has the desired name: $desiredDirectory"
         fi
     else
-        echo "Error: Could not find extracted folder. Exiting..."
+        echo "Error: Could not find extracted directory. Exiting..."
         # exit 1
     fi
 
@@ -152,9 +152,9 @@ if [ ! -f "${appPath}/${appName}/overlay-fs.conf" ]; then
     echo
     echo "** Do not forget to add entries! **"
     echo "You can add entries by executing the following command:"
-    echo "${appPath}/${appName}/add-entry.sh <folder> <app-name>"
+    echo "${appPath}/${appName}/add-app-and-directory.sh <app-name> <directory-path>"
     echo "Example:"
-    echo "    bash ${appPath}/${appName}/add-entry.sh /var/www/venus custom-web-app"
+    echo "    bash ${appPath}/${appName}/add-app-and-directory.sh /var/www/venus custom-web-app"
     echo
     echo "** Execute the enable.sh script after you have added at least one entry! **"
     echo "You can execute the enable.sh script with the following command:"
