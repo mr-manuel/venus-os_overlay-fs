@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2024 github.com/mr-manuel
 #
-# Version: 0.0.1 (20241118)
+# Version: 0.0.1 (20241125)
 
 
 # disable app

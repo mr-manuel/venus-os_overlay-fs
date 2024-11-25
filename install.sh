@@ -11,11 +11,11 @@
 # -c, --copy: copy the app to the correct location if delivered as dependency without downloading
 
 
-app_path="/data/apps"
-app_name="overlay-fs"
+appPath="/data/apps"
+appName="overlay-fs"
 
 # change to temp folder
-cd /tmp
+cd "/tmp"
 
 echo
 
@@ -32,7 +32,7 @@ if [ "$1" == "-c" ] || [ "$1" == "--copy" ]; then
     fi
 
     # get the path of this script
-    source_path=$(dirname $(realpath $0))/overlay-fs/
+    sourcePath="$(dirname "$(realpath "$0")")/overlay-fs/"
 
 
 else
@@ -42,13 +42,13 @@ else
 
 
     # download nightly build
-    url="https://github.com/mr-manuel/venus-os_${app_name}/archive/refs/heads/master.zip"
+    url="https://github.com/mr-manuel/venus-os_${appName}/archive/refs/heads/master.zip"
 
     echo "Downloading from: $url"
-    wget -O /tmp/venus-os_${app_name}.zip "$url"
+    wget -O "/tmp/venus-os_${appName}.zip" "$url"
 
     # check if download was successful
-    if [ ! -f /tmp/venus-os_${app_name}.zip ]; then
+    if [ ! -f "/tmp/venus-os_${appName}.zip" ]; then
         echo
         echo "Download failed. Exiting..."
         exit 1
@@ -56,105 +56,109 @@ else
 
 
     # If updating: cleanup old folder
-    if [ -d /tmp/venus-os_${app_name}-master ]; then
-        rm -rf /tmp/venus-os_${app_name}-master
+    if [ -d "/tmp/venus-os_${appName}-master" ]; then
+        rm -rf "/tmp/venus-os_${appName}-master"
     fi
 
 
     # unzip folder
     echo "Unzipping app..."
-    unzip venus-os_${app_name}.zip
+    unzip venus-os_${appName}.zip
 
     # Find and rename the extracted folder to be always the same
-    extracted_folder=$(find /tmp/ -maxdepth 1 -type d -name "*${app_name}-*")
+    extractedFolder="$(find /tmp/ -maxdepth 1 -type d -name "*${appName}-*")"
 
     # Desired folder name
-    desired_folder="/tmp/venus-os_${app_name}-master"
+    desiredFolder="/tmp/venus-os_${appName}-master"
 
     # Check if the extracted folder exists and does not already have the desired name
-    if [ -n "$extracted_folder" ]; then
-        if [ "$extracted_folder" != "$desired_folder" ]; then
-            mv "$extracted_folder" "$desired_folder"
+    if [ -n "$extractedFolder" ]; then
+        if [ "$extractedFolder" != "$desiredFolder" ]; then
+            mv "$extractedFolder" "$desiredFolder"
         else
-            echo "Folder already has the desired name: $desired_folder"
+            echo "Folder already has the desired name: $desiredFolder"
         fi
     else
         echo "Error: Could not find extracted folder. Exiting..."
         # exit 1
     fi
 
-    source_path=/tmp/venus-os_${app_name}-master/${app_name}/
+    sourcePath="/tmp/venus-os_${appName}-master/${appName}/"
 
 fi
 
 
 # If updating: backup existing config file
-if [ -f ${app_path}/${app_name}/overlay-fs.conf ]; then
+if [ -f "${appPath}/${appName}/overlay-fs.conf" ]; then
     echo
     echo "Backing up existing config file..."
-    mv ${app_path}/${app_name}/overlay-fs.conf ${app_path}/${app_name}_overlay-fs.conf
+    mv "${appPath}/${appName}/overlay-fs.conf" "${appPath}/${appName}_overlay-fs.conf"
 fi
 
 
 # If updating: cleanup existing app
-if [ -d ${app_path}/${app_name} ]; then
+if [ -d ${appPath}/${appName} ]; then
     echo
     echo "Cleaning up existing app..."
-    rm -rf ${app_path:?}/${app_name}
+    rm -rf "${appPath:?}/${appName}"
 fi
 
 
 # copy files
 echo
 echo "Copying new app files..."
-if [ ! -d ${app_path} ]; then
-    mkdir -p ${app_path}
+if [ ! -d "${appPath}" ]; then
+    mkdir -p "${appPath}"
 fi
-cp -R ${source_path} ${app_path}/${app_name}/
+cp -R "${sourcePath}" "${appPath}/${appName}/"
 
 # remove temp files
 
 echo
 echo "Cleaning up temp files..."
-if [ -f /tmp/venus-os_${app_name}.zip ]; then
-    rm -rf /tmp/venus-os_${app_name}.zip
+if [ -f "/tmp/venus-os_${appName}.zip" ]; then
+    rm -rf "/tmp/venus-os_${appName}.zip"
 fi
-if [ -d /tmp/venus-os_${app_name}-master ]; then
-    rm -rf /tmp/venus-os_${app_name}-master
+if [ -d "/tmp/venus-os_${appName}-master" ]; then
+    rm -rf "/tmp/venus-os_${appName}-master"
 fi
 
 
 # If updating: restore existing config file
-if [ -f ${app_path}/${app_name}_overlay-fs.conf ]; then
+if [ -f "${appPath}/${appName}_overlay-fs.conf" ]; then
     echo
     echo "Restoring existing config file..."
-    if [ -f ${app_path}/${app_name}/overlay-fs.conf ]; then
-        rm ${app_path}/${app_name}/overlay-fs.conf
+    if [ -f "${appPath}/${appName}/overlay-fs.conf" ]; then
+        rm "${appPath}/${appName}/overlay-fs.conf"
     fi
-    mv ${app_path}/${app_name}_overlay-fs.conf ${app_path}/${app_name}/overlay-fs.conf
+    mv "${appPath}/${appName}_overlay-fs.conf" "${appPath}/${appName}/overlay-fs.conf"
 fi
 
 
 # set permissions for files
 echo
 echo "Setting permissions for files..."
-chmod 755 ${app_path}/${app_name}/*.sh
+chmod 755 ${appPath}/${appName}/*.sh
 
 
-# copy default config file
-if [ ! -f ${app_path}/${app_name}/overlay-fs.conf ]; then
+# copy empty config file
+if [ ! -f "${appPath}/${appName}/overlay-fs.conf" ]; then
+    # Copy empty config file
+    cp "${appPath}/${appName}/overlay-fs.conf.sample" "${appPath}/${appName}/overlay-fs.conf"
+
     echo
     echo
-    echo "First installation detected. Copying default config file..."
+    echo "First installation detected. Copying empty config file..."
     echo
-    echo "** Do not forget to edit the config file with your settings! **"
-    echo "You can edit the config file with the following command:"
-    echo "nano ${app_path}/${app_name}/overlay-fs.conf"
-    cp ${app_path}/${app_name}/overlay-fs.conf.sample ${app_path}/${app_name}/overlay-fs.conf
+    echo "** Do not forget to add entries! **"
+    echo "You can add entries by executing the following command:"
+    echo "${appPath}/${appName}/add-entry.sh <folder> <app-name>"
+    echo "Example:"
+    echo "    bash ${appPath}/${appName}/add-entry.sh /var/www/venus custom-web-app"
     echo
-    echo "** Execute the enable.sh script after you have edited the config file! **"
+    echo "** Execute the enable.sh script after you have added at least one entry! **"
     echo "You can execute the enable.sh script with the following command:"
-    echo "bash ${app_path}/${app_name}/enable.sh"
+    echo "bash ${appPath}/${appName}/enable.sh"
     echo
 else
     echo

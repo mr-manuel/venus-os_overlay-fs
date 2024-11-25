@@ -1,10 +1,10 @@
 ; Specify the absolute path of the directory to be overlayed.
 ; NOTE: You can only overlay an entire folder, not individual files.
 ; However, you can modify individual files within an overlayed folder.
-; Uncomment a folder below by removing the semicolon or add a new one
-
-;/lib
-;/opt/victronenergy
-;/usr/bin
-;/usr/sbin
-;/var/www/venus
+;
+; Add a space followed by a comma-separated list of applications that use the specific folder.
+; This prevents the overlay folder from being removed when an application is uninstalled.
+; Example for one app using the path:
+;     /var/www/venus custom-web-app
+; Example for two apps using the same path:
+;     /var/www/venus custom-web-app,custom-css-app

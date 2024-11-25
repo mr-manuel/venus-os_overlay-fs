@@ -4,31 +4,39 @@
 #
 # Copyright (c) 2024 github.com/mr-manuel
 #
-# Version: 0.0.1 (20241118)
+# Version: 0.0.1 (20241125)
 
 
 echo
 echo "Installing overlay-fs app..."
 
 
-# create overlay-fs and mount it, if not already mounted
+# Create overlay-fs and mount it, if not already mounted
 function mountOverlayFs ()
 {
     path="/data/apps/overlay-fs/data"
-    lowerDir=$1
+    lowerDir="$1"
 
-    # check if the path exists and is a directory
-    if [ ! -d $lowerDir ]; then
+    # Check if the path exists and is a directory
+    if [ ! -d "$lowerDir" ]; then
         echo "$(date +%Y-%m-%d\ %H:%M:%S) ERROR: ${lowerDir} is not a directory"
         return 1
     fi
 
-    if [ -z $2 ]; then
-        # extract the top folder name of the path
-        overlayName=$(basename $1)
-    else
-        overlayName=$2
+    # Check if the path is a symlink
+    if [ -L "$lowerDir" ]; then
+        echo "$(date +%Y-%m-%d\ %H:%M:%S) ERROR: ${lowerDir} is a symlink and cannot be used"
+        return 1
     fi
+
+    # Check if the path is not /
+    if [ "$lowerDir" == "/" ]; then
+        echo "$(date +%Y-%m-%d\ %H:%M:%S) ERROR: ${lowerDir} is the root directory and cannot be used"
+        return 1
+    fi
+
+    # Extract the top folder name of the path
+    overlayName="$(basename "$1")"
 
 
     if [ ! -d "${path}/${overlayName}/upper" ]; then
@@ -42,7 +50,7 @@ function mountOverlayFs ()
     fi
 
 
-    # check if overlay is already mounted
+    # Check if overlay is already mounted
     if ! mountpoint -q "${path}/${overlayName}/merged"; then
         echo "$(date +%Y-%m-%d\ %H:%M:%S) INFO: Mounting overlay for ${lowerDir}"
         # Mount the overlay
@@ -59,11 +67,11 @@ function mountOverlayFs ()
     fi
 
 
-    # check if overlay is already mounted
+    # Check if overlay is already mounted
     if ! mountpoint -q "${lowerDir}"; then
         echo "$(date +%Y-%m-%d\ %H:%M:%S) INFO: Mounting bind overlay for ${lowerDir}"
         # Mounting bind to the lower directory path
-        mount --bind ${path}/${overlayName}/merged ${lowerDir}
+        mount --bind "${path}/${overlayName}/merged" "${lowerDir}"
 
         # Check if the mounting bind was successful
         if [ $? -ne 0 ]; then
@@ -75,33 +83,39 @@ function mountOverlayFs ()
 
 
 
-# fix permissions
+# Fix permissions
 chmod 755 /data/apps/overlay-fs/*.sh
 
 
 
-# launch the overlay-fs at startup
-filename=/data/rcS.local
-# create the file if it doesn't exist
+# Launch the overlay-fs at startup
+filename="/data/rcS.local"
+# Create the file if it doesn't exist
 if [ ! -f "$filename" ]; then
     echo "$(date +%Y-%m-%d\ %H:%M:%S) INFO: rcS.local file doesn't exist. Creating it..."
     echo "#!/bin/bash" > "$filename"
     chmod 755 "$filename"
 fi
-# add the line to the 2nd line of the file if it doesn't exist
+# Add the line to the first non-comment line of the file if it doesn't exist
 if ! grep -qxF "bash /data/apps/overlay-fs/enable.sh > /data/apps/overlay-fs/startup.log 2>&1" "$filename"; then
     echo "$(date +%Y-%m-%d\ %H:%M:%S) INFO: Adding overlay-fs startup command to rcS.local"
-    sed -i '2i bash /data/apps/overlay-fs/enable.sh > /data/apps/overlay-fs/startup.log 2>&1' "$filename"
+    lineNumber=$(awk '/^[^#]/ {print NR; exit}' "$filename")
+    if [ -z "$lineNumber" ]; then
+        # If no non-comment line is found, add to the end of the file
+        echo "bash /data/apps/overlay-fs/enable.sh > /data/apps/overlay-fs/startup.log 2>&1" >> "$filename"
+    else
+        sed -i "${lineNumber}i bash /data/apps/overlay-fs/enable.sh > /data/apps/overlay-fs/startup.log 2>&1" "$filename"
+    fi
 fi
 
 
 # Read the config file and loop through each line
 while IFS= read -r line; do
     # Ensure the line starts with /
-    if [[ $line =~ ^\/ ]]; then
+    if [[ "$line" =~ ^\/ ]]; then
         mountOverlayFs $line
     fi
-done < /data/apps/overlay-fs/overlay-fs.conf
+done < "/data/apps/overlay-fs/overlay-fs.conf"
 
 echo "done."
 echo

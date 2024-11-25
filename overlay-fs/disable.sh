@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2024 github.com/mr-manuel
 #
-# Version: 0.0.1 (20241118)
+# Version: 0.0.1 (20241125)
 
 
 echo
@@ -17,25 +17,22 @@ resource_busy=0
 # Read the config file and loop through each line
 while IFS= read -r line; do
     # Ensure the line starts with /
-    if [[ $line =~ ^\/ ]]; then
+    if [[ "$line" =~ ^\/ ]]; then
         # split $line on the first space, get the first two variables and ignore the rest
-        IFS=' ' read -r lowerDir overlayName other < <(echo $line)
+        IFS=' ' read -r lowerDir appNames other <<< "$line"
 
-        if [ -z $overlayName ]; then
-            # extract the top folder name of the path
-            overlayName=$(basename $lowerDir)
-        fi
+        overlayName="$(basename "$lowerDir")"
 
-        if mountpoint -q $lowerDir; then
+        if mountpoint -q "$lowerDir"; then
             echo "Unmounting bind overlay for ${lowerDir}"
-            umount $lowerDir
+            umount "$lowerDir"
             if [ $? -ne 0 ]; then
                 resource_busy=1
             fi
         fi
-        if mountpoint -q ${path}/$overlayName/merged; then
+        if mountpoint -q "${path}/$overlayName/merged"; then
             echo "Unmounting overlay for ${lowerDir}"
-            umount ${path}/$overlayName/merged
+            umount "${path}/$overlayName/merged"
             if [ $? -ne 0 ]; then
                 resource_busy=1
             fi
@@ -52,6 +49,6 @@ echo "The overlay-fs was disabled".
 echo
 
 if [ $resource_busy -eq 1 ]; then
-    echo "*** Some resources are budy and could not be unmounted. Please reboot to complete."
+    echo "*** Some resources are busy and could not be unmounted. Please reboot to complete."
     echo
 fi
